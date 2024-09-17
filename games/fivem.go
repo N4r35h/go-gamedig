@@ -65,11 +65,22 @@ func FivemQueryAsStruct(hostname string) types.Gamequery {
 	json.Unmarshal([]byte(string(body)), &fiveminfojson1)
 
 	gamedata.Maxplayers, _ = strconv.Atoi(fiveminfojson1.Vars.Maxplayers)
+	gamedata.ServerInfo.Name = fiveminfojson1.Vars.Sv_projectName
+	gamedata.ServerInfo.MaxPlayers, _ = strconv.Atoi(fiveminfojson1.Vars.Maxplayers)
+	gamedata.ServerInfo.Extra = map[string]string{
+		"icon":           fiveminfojson1.Icon,
+		"Resources":      strconv.Itoa(len(fiveminfojson1.Resources)),
+		"Version":        strconv.Itoa(fiveminfojson1.Version),
+		"Server":         fiveminfojson1.Server,
+		"Onesync":        fiveminfojson1.Vars.Onesync_enabled,
+		"Gamebuild":      fiveminfojson1.Vars.GameBuild,
+		"sv_projectDesc": fiveminfojson1.Vars.Sv_projectDesc,
+		"tags":           fiveminfojson1.Vars.Tags,
+	}
 
 	req, err = http.NewRequest("GET", "http://"+hostname+"/players.json", nil)
 	if err != nil {
-		logrus.Warn(err)
-		gamedata.Error = "Error"
+		gamedata.Error = "Error, unable to query for players"
 		return gamedata
 	}
 	req.Header.Add("Accept", "application/json")
@@ -95,20 +106,7 @@ func FivemQueryAsStruct(hostname string) types.Gamequery {
 		})
 	}
 
-	gamedata.ServerInfo.Name = fiveminfojson1.Vars.Sv_projectName
 	gamedata.ServerInfo.OnlinePlayers = len(fivemplayers)
-	gamedata.ServerInfo.MaxPlayers, _ = strconv.Atoi(fiveminfojson1.Vars.Maxplayers)
-	gamedata.ServerInfo.Extra = map[string]string{
-		"icon":           fiveminfojson1.Icon,
-		"Resources":      strconv.Itoa(len(fiveminfojson1.Resources)),
-		"Version":        strconv.Itoa(fiveminfojson1.Version),
-		"Server":         fiveminfojson1.Server,
-		"Onesync":        fiveminfojson1.Vars.Onesync_enabled,
-		"Gamebuild":      fiveminfojson1.Vars.GameBuild,
-		"sv_projectDesc": fiveminfojson1.Vars.Sv_projectDesc,
-		"tags":           fiveminfojson1.Vars.Tags,
-	}
-
 	gamedata.Error = ""
 	return gamedata
 }
