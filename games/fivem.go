@@ -97,10 +97,14 @@ func FivemQueryAsStruct(hostname string) types.Gamequery {
 	gamedata.Onlineplayers = len(fivemplayers)
 
 	for _, s := range fivemplayers {
+		identifier := ""
+		if len(s.Identifiers) > 0 {
+			identifier = s.Identifiers[0]
+		}
 		gamedata.Detailed = append(gamedata.Detailed, map[string]string{
 			"id":          strconv.Itoa(s.ID),
 			"name":        s.Name,
-			"identifier":  s.Identifiers[0],
+			"identifier":  identifier,
 			"identifiers": GetIdentifiersAsString(s),
 			"ping":        strconv.Itoa(s.Ping),
 		})
